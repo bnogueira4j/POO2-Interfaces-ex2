@@ -1,0 +1,60 @@
+### Notificações ao Usuário
+
+Para dar maior tranquilidade aos clientes do banco em que você trabalha, os Product Managers decidiram melhorar a experiência do usuário permitindo que as notificações de operações bancárias em suas contas possam ser realizadas por outros meios de comunicação além do e-mail, único suportado até agora.
+
+O código atual é o seguinte:
+
+```java
+
+    record Cliente(String email){}
+
+    interface NotificacaoEmail {
+        boolean notificar(Cliente cliente, String mensagem);
+    }
+
+    class NotificacaoEmailImpl implements NotificacaoEmail {
+        public boolean notificar(Cliente cliente, String mensagem) {
+            System.out.println(cliente.email() + ": " + mensagem);
+            return true;
+        }
+    }
+
+    class NotificadorService{
+        void notificaClient(Cliente cliente){
+            NotificacaoEmail notificacaoEmail = new NotificacaoEmailImpl();
+            if(notificacaoEmail.notificar(cliente, "Movimentação realizada em sua conta corrente.")){
+                System.out.println("Mensagem Enviada.");
+            }
+        }
+    }
+
+```
+
+Você se voluntariou para trabalhar nessa história. Para resolvê-la, você decidiu junto com o time:
+- criar uma interface `Notificacao` e, assim, evitar ter de criar um método `NotificadorService.notificaClient(...)` para cada tipo de chamada;
+- fazer o método `NotificadorService.notificaClient(...)` receber um parâmetro com a implementação de `Notificacao` escolhida e utilizá-la para realizar a notificação;
+
+Após as primeiras modificações, o código ficou assim:
+
+```java
+
+    record Cliente(String email, String whatsApp, String sms){}
+
+    interface Notificacao {
+        boolean notificar(Cliente cliente, String mensagem);
+    }
+
+    class NotificadorService{
+        boolean notificaClient(Cliente cliente, Notificacao notificacao){
+            return notificacao.notificar(cliente, "Movimentação realizada em sua conta corrente.");
+        }
+    }
+
+```
+
+Seu próximo trabalho, será implementar a interface Notificacao para possibilitar que a comunicação seja feita via WhatsApp, E-mail, SMS.
+Para tal, crie as classes `NotificacaoWhatsApp`, `NotificacaoEmail` e `NotificacaoSms` para possibilitar tais meios.
+
+**Observações:**
+- ao implementar o método notificar, retorne `true`;
+- as classes criadas devem possuir modificador de acesso "default".
